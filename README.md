@@ -1,4 +1,4 @@
-Project Idea: Local Community Tool & Equipment Lending Library 
+**Project Idea: Local Community Tool & Equipment Lending Library** 
 
 ## Environment setup
 
@@ -10,7 +10,7 @@ Why it works: It features a clear, real-world domain with distinct entities (Use
 
  
 
-Part 1: Meeting the Requirements with this Idea 
+**Part 1: Meeting the Requirements with this Idea** 
 
 1. Database & Collections (MongoDB / Mongoose) 
 
@@ -91,7 +91,6 @@ DELETE
 Remove a tool from the inventory (Delete - Protected) 
 
  
-
 4. Authentication & Authorization 
 
 Implement secure password hashing using bcryptjs. 
