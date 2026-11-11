@@ -1,10 +1,10 @@
-Project Idea: Local Community Tool & Equipment Lending Library 
+**Project Idea: Local Community Tool & Equipment Lending Library** 
 
 Why it works: It features a clear, real-world domain with distinct entities (Users, Tools/Items, and Borrow Requests/Transactions). It fits the Node.js/Express MVC pattern naturally and maps cleanly to standard CRUD operations. 
 
  
 
-Part 1: Meeting the Requirements with this Idea 
+**Part 1: Meeting the Requirements with this Idea** 
 
 1. Database & Collections (MongoDB / Mongoose) 
 
@@ -85,7 +85,6 @@ DELETE
 Remove a tool from the inventory (Delete - Protected) 
 
  
-
 4. Authentication & Authorization 
 
 Implement secure password hashing using bcryptjs. 
