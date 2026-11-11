@@ -1,4 +1,4 @@
-const REQUIRED_ENV = ['MONGODB_URI', 'JWT_SECRET'] as const;
+const REQUIRED_ENV = ['MONGODB_URI', 'DB_NAME', 'JWT_SECRET'] as const;
 
 type RequiredEnvVar = (typeof REQUIRED_ENV)[number];
 
@@ -6,6 +6,7 @@ export interface AppEnv {
   NODE_ENV: 'development' | 'test' | 'production';
   PORT: number;
   MONGODB_URI: string;
+  DB_NAME: string;
   JWT_SECRET: string;
 }
 
@@ -28,6 +29,7 @@ export function loadEnv(): AppEnv {
     NODE_ENV: resolvedNodeEnv,
     PORT: port,
     MONGODB_URI: process.env.MONGODB_URI as string,
+    DB_NAME: process.env.DB_NAME as string,
     JWT_SECRET: process.env.JWT_SECRET as string,
   };
 }

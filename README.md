@@ -1,5 +1,11 @@
 Project Idea: Local Community Tool & Equipment Lending Library 
 
+## Environment setup
+
+Copy `.env.example` to `.env`, then set `MONGODB_URI`, `DB_NAME`, and `JWT_SECRET`.
+`DB_NAME` is passed explicitly to Mongoose, so the connection uses that database
+even when the MongoDB URI does not include a database path.
+
 Why it works: It features a clear, real-world domain with distinct entities (Users, Tools/Items, and Borrow Requests/Transactions). It fits the Node.js/Express MVC pattern naturally and maps cleanly to standard CRUD operations. 
 
  
