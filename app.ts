@@ -1,6 +1,10 @@
+
 import express, { type Express, type Request, type Response } from 'express';
 import cors from 'cors';
+
 import authRoutes from './routes/authRoutes.ts';
+import borrowRequestRoutes from './routes/borrowRequestRoutes.ts';
+
 import { notFound, errorHandler } from './middleware/errorHandlers.ts';
 
 export function createApp(): Express {
@@ -18,6 +22,10 @@ export function createApp(): Express {
 
   app.use('/api/auth', authRoutes);
 
+  // Martina's borrow request routes
+  app.use('/api/borrow-requests', borrowRequestRoutes);
+
+  // Error handling
   app.use(notFound);
   app.use(errorHandler);
 
