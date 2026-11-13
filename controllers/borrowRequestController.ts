@@ -2,6 +2,7 @@
 import type { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import BorrowRequest from '../models/BorrowRequest.ts';
+import Tool from '../models/Tool.ts';
 
 // CREATE: Submit a new borrow request
 export async function createBorrowRequest(
@@ -15,8 +16,9 @@ export async function createBorrowRequest(
       return;
     }
 
-    const { tool, startDate, endDate } = req.body;
+    const { tool, startDate, endDate } = req.body ?? {};
 
+    // Check required fields
     if (!tool || !startDate || !endDate) {
       res.status(400).json({
         error: 'Tool, start date, and end date are required',
@@ -24,11 +26,37 @@ export async function createBorrowRequest(
       return;
     }
 
-    if (!mongoose.isValidObjectId(tool)) {
+    // Validate Tool ObjectId
+    if (!mongoose.isObjectIdOrHexString(tool)) {
       res.status(400).json({ error: 'Invalid tool ID' });
       return;
     }
 
+    // Check whether the tool actually exists
+    const existingTool = await Tool.findById(tool);
+
+    if (!existingTool) {
+      res.status(404).json({ error: 'Tool not found' });
+      return;
+    }
+
+    // Only available tools can be requested
+    if (!existingTool.isAvailable) {
+      res.status(409).json({
+        error: 'Tool is currently unavailable',
+      });
+      return;
+    }
+
+    // Prevent users from borrowing their own equipment
+    if (existingTool.owner.toString() === req.userId.toString()) {
+      res.status(400).json({
+        error: 'You cannot borrow your own tool',
+      });
+      return;
+    }
+
+    // Validate borrowing dates
     const start = new Date(startDate);
     const end = new Date(endDate);
 
@@ -41,15 +69,21 @@ export async function createBorrowRequest(
       return;
     }
 
+    // Save the borrowing request in MongoDB
     const borrowRequest = await BorrowRequest.create({
       borrower: req.userId,
-      tool,
+      tool: existingTool._id,
       startDate: start,
       endDate: end,
     });
 
     res.status(201).json(borrowRequest);
   } catch (error) {
+    if (error instanceof mongoose.Error.ValidationError) {
+      res.status(400).json({ error: error.message });
+      return;
+    }
+
     next(error);
   }
 }
@@ -90,18 +124,21 @@ export async function getBorrowRequestById(
 
     const { id } = req.params;
 
-    if (!mongoose.isValidObjectId(id)) {
+    if (!mongoose.isObjectIdOrHexString(id)) {
       res.status(400).json({ error: 'Invalid request ID' });
       return;
     }
 
+    // Users can only view their own requests
     const request = await BorrowRequest.findOne({
       _id: id,
       borrower: req.userId,
     });
 
     if (!request) {
-      res.status(404).json({ error: 'Borrow request not found' });
+      res.status(404).json({
+        error: 'Borrow request not found',
+      });
       return;
     }
 
@@ -125,18 +162,21 @@ export async function updateBorrowRequest(
 
     const { id } = req.params;
 
-    if (!mongoose.isValidObjectId(id)) {
+    if (!mongoose.isObjectIdOrHexString(id)) {
       res.status(400).json({ error: 'Invalid request ID' });
       return;
     }
 
+    // Find only a request owned by this borrower
     const request = await BorrowRequest.findOne({
       _id: id,
       borrower: req.userId,
     });
 
     if (!request) {
-      res.status(404).json({ error: 'Borrow request not found' });
+      res.status(404).json({
+        error: 'Borrow request not found',
+      });
       return;
     }
 
@@ -147,8 +187,17 @@ export async function updateBorrowRequest(
       return;
     }
 
+    const body = req.body;
+
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
+      res.status(400).json({
+        error: 'A JSON object is required',
+      });
+      return;
+    }
+
     const allowedFields = ['startDate', 'endDate'];
-    const submittedFields = Object.keys(req.body ?? {});
+    const submittedFields = Object.keys(body);
 
     if (
       submittedFields.length === 0 ||
@@ -160,14 +209,16 @@ export async function updateBorrowRequest(
       return;
     }
 
-    if (req.body.startDate !== undefined) {
-      request.startDate = new Date(req.body.startDate);
+    // Update dates if provided
+    if (body.startDate !== undefined) {
+      request.startDate = new Date(body.startDate);
     }
 
-    if (req.body.endDate !== undefined) {
-      request.endDate = new Date(req.body.endDate);
+    if (body.endDate !== undefined) {
+      request.endDate = new Date(body.endDate);
     }
 
+    // Mongoose runs the date validation in the model
     await request.save();
 
     res.status(200).json(request);
@@ -195,18 +246,21 @@ export async function deleteBorrowRequest(
 
     const { id } = req.params;
 
-    if (!mongoose.isValidObjectId(id)) {
+    if (!mongoose.isObjectIdOrHexString(id)) {
       res.status(400).json({ error: 'Invalid request ID' });
       return;
     }
 
+    // Users can only cancel their own requests
     const request = await BorrowRequest.findOne({
       _id: id,
       borrower: req.userId,
     });
 
     if (!request) {
-      res.status(404).json({ error: 'Borrow request not found' });
+      res.status(404).json({
+        error: 'Borrow request not found',
+      });
       return;
     }
 
