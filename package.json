@@ -6,7 +6,7 @@
   "main": "server.ts",
   "scripts": {
     "build": "tsc",
-    "start": "node server.ts", 
+    "start": "node server.ts",
     "dev": "tsx watch server.ts",
     "typecheck": "tsc --noEmit",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
@@ -18,7 +18,8 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.5.1"
+    "mongoose": "^8.5.1",
+    "swagger-jsdoc": "^6.3.0"
   },
   "engines": {
     "node": ">=24"
@@ -30,6 +31,7 @@
     "@types/jest": "^29.5.12",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20.14.11",
+    "@types/swagger-jsdoc": "^6.0.4",
     "tsx": "^4.16.2",
     "typescript": "^5.5.4"
   }
