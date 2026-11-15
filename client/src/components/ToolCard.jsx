@@ -1,5 +1,19 @@
 import { useState } from 'react';
 
+function getCurrentUser() {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return {
+      id: payload.sub || payload.id || payload._id || payload.userId,
+      name: payload.name || payload.fullName || null,
+    };
+  } catch {
+    return null;
+  }
+}
+
 export default function ToolCard({ tool, onBorrowClick, onUpdateTool, onDeleteTool }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({
@@ -9,6 +23,23 @@ export default function ToolCard({ tool, onBorrowClick, onUpdateTool, onDeleteTo
     description: tool.description,
   });
 
+  const currentUser = getCurrentUser();
+  const ownerId = typeof tool.owner === 'object' ? tool.owner?._id : tool.owner;
+  const isOwner = Boolean(currentUser?.id && ownerId && String(currentUser.id) === String(ownerId));
+
+
+const ownerName =
+    (typeof tool.owner === 'object' ? tool.owner?.name || tool.owner?.fullName : null) ||
+    tool.ownerName;
+
+const ownerLabel = isOwner
+    ? currentUser?.name
+      ? `${currentUser.name} (You)`
+      : 'You'
+    : ownerName
+      ? `${ownerName} (Neighbor)`
+      : 'Neighbor';
+  
   const isAvailable = tool.isAvailable !== false;
 
   const handleSave = (e) => {
@@ -102,34 +133,38 @@ export default function ToolCard({ tool, onBorrowClick, onUpdateTool, onDeleteTo
 
       <div className="mt-6 pt-4 border-t border-zinc-100 space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-xs text-zinc-500">Owner: {tool.owner?.name || 'Neighbor'}</span>
+          <span className="text-xs text-zinc-500">Owner: {ownerLabel}</span>
           <button
-            disabled={!isAvailable}
+            disabled={!isAvailable || isOwner}
             onClick={() => onBorrowClick(tool)}
             className={`px-3.5 py-1.5 text-sm font-medium rounded-md transition ${
-              isAvailable
-                ? 'bg-zinc-900 text-white hover:bg-zinc-800 cursor-pointer'
-                : 'bg-zinc-100 text-zinc-400 cursor-not-allowed'
+              isOwner
+                ? 'bg-zinc-100 text-zinc-500 cursor-default'
+                : isAvailable
+                  ? 'bg-zinc-900 text-white hover:bg-zinc-800 cursor-pointer'
+                  : 'bg-zinc-100 text-zinc-400 cursor-not-allowed'
             }`}
           >
-            {isAvailable ? 'Request Tool' : 'Unavailable'}
+            {isOwner ? 'Your Listing' : isAvailable ? 'Request Tool' : 'Unavailable'}
           </button>
         </div>
 
-        <div className="flex items-center justify-end gap-3 pt-2 border-t border-zinc-50 text-xs">
-          <button
-            onClick={() => setIsEditing(true)}
-            className="text-zinc-500 hover:text-zinc-900 cursor-pointer"
-          >
-            Edit
-          </button>
-          <button
-            onClick={() => onDeleteTool(tool._id)}
-            className="text-red-500 hover:text-red-700 cursor-pointer"
-          >
-            Delete
-          </button>
-        </div>
+        {isOwner && (
+          <div className="flex items-center justify-end gap-3 pt-2 border-t border-zinc-50 text-xs">
+            <button
+              onClick={() => setIsEditing(true)}
+              className="text-zinc-500 hover:text-zinc-900 cursor-pointer"
+            >
+              Edit
+            </button>
+            <button
+              onClick={() => onDeleteTool(tool._id)}
+              className="text-red-500 hover:text-red-700 cursor-pointer"
+            >
+              Delete
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
