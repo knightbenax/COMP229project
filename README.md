@@ -106,3 +106,12 @@ GitHub Repository: Initialize a shared repo with a clean folder structure (/serv
 Project Board: Board in Github with columns: Product Backlog, To Do, In Progress, and Done covering tasks like "Setup Express server", "Implement User Schema", and "Test Tool CRUD via Postman". 
 
  
+To Run: 
+
+npm install
+npm run dev
+
+cd into client folder and run
+
+npm install
+npm run dev
