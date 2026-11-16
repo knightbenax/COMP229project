@@ -34,14 +34,28 @@ export default function Catalog({ latestTool }) {
   }, [latestTool]);
 
   // BORROW request
-  const handleBorrowRequest = async (tool) => {
+ const handleBorrowRequest = async (tool) => {
     try {
-      await api.post('/borrow-requests', { toolId: tool._id });
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const returnDay = new Date();
+      returnDay.setDate(returnDay.getDate() + 4);
+
+      await api.post('/borrow-requests', {
+        tool: tool._id,
+        startDate: tomorrow.toISOString(),
+        endDate: returnDay.toISOString(),
+      });
       setFeedback(`Borrow request sent for ${tool.name}!`);
     } catch (err) {
-      setFeedback(err.response?.data?.message || 'Sign in first to request a tool.');
+      const msg =
+        err.response?.data?.message ||
+        err.response?.data?.error?.message ||
+        (typeof err.response?.data?.error === 'string' ? err.response.data.error : null) ||
+        `Request failed (${err.response?.status || 'Error'})`;
+      setFeedback(msg);
     }
-    setTimeout(() => setFeedback(''), 3000);
+    setTimeout(() => setFeedback(''), 4000);
   };
 
   // UPDATE tool
