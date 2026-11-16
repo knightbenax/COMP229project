@@ -27,19 +27,18 @@ export default function ToolCard({ tool, onBorrowClick, onUpdateTool, onDeleteTo
   const ownerId = typeof tool.owner === 'object' ? tool.owner?._id : tool.owner;
   const isOwner = Boolean(currentUser?.id && ownerId && String(currentUser.id) === String(ownerId));
 
-
-const ownerName =
+  const ownerName =
     (typeof tool.owner === 'object' ? tool.owner?.name || tool.owner?.fullName : null) ||
     tool.ownerName;
 
-const ownerLabel = isOwner
+  const ownerLabel = isOwner
     ? currentUser?.name
       ? `${currentUser.name} (You)`
       : 'You'
     : ownerName
       ? `${ownerName} (Neighbor)`
       : 'Neighbor';
-  
+
   const isAvailable = tool.isAvailable !== false;
 
   const handleSave = (e) => {

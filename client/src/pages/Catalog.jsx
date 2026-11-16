@@ -34,7 +34,7 @@ export default function Catalog({ latestTool }) {
   }, [latestTool]);
 
   // BORROW request
-  const handleBorrowRequest = async (tool) => {
+ const handleBorrowRequest = async (tool) => {
     try {
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
@@ -43,8 +43,8 @@ export default function Catalog({ latestTool }) {
 
       await api.post('/borrow-requests', {
         tool: tool._id,
-        startDate: tomorrow.toISOString().split('T')[0],
-        endDate: returnDay.toISOString().split('T')[0],
+        startDate: tomorrow.toISOString(),
+        endDate: returnDay.toISOString(),
       });
       setFeedback(`Borrow request sent for ${tool.name}!`);
     } catch (err) {
@@ -52,7 +52,7 @@ export default function Catalog({ latestTool }) {
         err.response?.data?.message ||
         err.response?.data?.error?.message ||
         (typeof err.response?.data?.error === 'string' ? err.response.data.error : null) ||
-        `Request failed (${err.response?.status || 'Network Error'})`;
+        `Request failed (${err.response?.status || 'Error'})`;
       setFeedback(msg);
     }
     setTimeout(() => setFeedback(''), 4000);
